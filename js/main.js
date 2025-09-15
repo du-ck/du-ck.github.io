@@ -125,10 +125,7 @@ function addBoss(char) {
     createModal("보스 추가", (box) => {
         const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
 
-        // order 기준으로 정렬
-        const sortedBosses = [...allBosses].sort((a, b) => a.order - b.order);
-
-        sortedBosses.forEach(b => {
+        allBosses.forEach(b => {
             const wrapper = document.createElement("div");
             wrapper.style.display = "flex";
             wrapper.style.alignItems = "center";
@@ -266,37 +263,38 @@ function renderCharacters() {
         bossListDiv.className = "boss-list";
         const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
 
-        bossList.forEach(bossKey => {
-            const boss = allBosses.find(b => `${b.name}_${b.difficulty}` === bossKey);
-            if (!boss) return;
+        bossList
+  .map(bossKey => allBosses.find(b => `${b.name}_${b.difficulty}` === bossKey))
+  .filter(boss => boss) // null 제거
+  .sort((a, b) => a.order - b.order) // order 기준 정렬
+  .forEach(boss => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "boss-wrapper";
 
-            const wrapper = document.createElement("div");
-            wrapper.className = "boss-wrapper";
+      const img = document.createElement("img");
+      img.src = boss.img;
+      img.title = `${boss.name} (${boss.difficulty})`;
 
-            const img = document.createElement("img");
-            img.src = boss.img;
-            img.title = `${boss.name} (${boss.difficulty})`;
+      const checkMark = document.createElement("span");
+      checkMark.className = "checkmark";
+      checkMark.textContent = "✔";
 
-            const checkMark = document.createElement("span");
-            checkMark.className = "checkmark";
-            checkMark.textContent = "✔";
+      if (localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true") {
+          img.classList.add("checked");
+          checkMark.style.display = "block";
+      }
 
-            if (localStorage.getItem(`${char}_${bossKey}`) === "true") {
-                img.classList.add("checked");
-                checkMark.style.display = "block";
-            }
+      img.addEventListener("click", () => {
+          const current = localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true";
+          localStorage.setItem(`${char}_${boss.name}_${boss.difficulty}`, !current);
+          img.classList.toggle("checked");
+          checkMark.style.display = current ? "none" : "block";
+      });
 
-            img.addEventListener("click", () => {
-                const current = localStorage.getItem(`${char}_${bossKey}`) === "true";
-                localStorage.setItem(`${char}_${bossKey}`, !current);
-                img.classList.toggle("checked");
-                checkMark.style.display = current ? "none" : "block";
-            });
-
-            wrapper.appendChild(img);
-            wrapper.appendChild(checkMark);
-            bossListDiv.appendChild(wrapper);
-        });
+      wrapper.appendChild(img);
+      wrapper.appendChild(checkMark);
+      bossListDiv.appendChild(wrapper);
+  });
 
         charDiv.appendChild(bossListDiv);
 
