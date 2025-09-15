@@ -84,123 +84,126 @@ function removeCharacter(name) {
     renderCharacters();
 }
 
+// 모달 생성 공통 함수
+function createModal(titleText, contentBuilder) {
+    const modal = document.createElement("div");
+    modal.className = "modal";
+
+    // 바깥 클릭 시 닫기
+    modal.addEventListener("click", () => {
+        document.body.removeChild(modal);
+    });
+
+    const box = document.createElement("div");
+    box.className = "modal-box";
+
+    // 박스 클릭 시 버블링 막기
+    box.addEventListener("click", (e) => e.stopPropagation());
+
+    const title = document.createElement("h3");
+    title.textContent = titleText;
+    box.appendChild(title);
+
+    contentBuilder(box);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "닫기";
+    closeBtn.className = "remove-btn";
+    closeBtn.onclick = () => document.body.removeChild(modal);
+
+    const buttons = document.createElement("div");
+    buttons.className = "modal-buttons";
+    buttons.appendChild(closeBtn);
+    box.appendChild(buttons);
+
+    modal.appendChild(box);
+    document.body.appendChild(modal);
+}
+
+// 보스 추가 모달
 function addBoss(char) {
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    const box = document.createElement("div");
-    box.className = "modal-box";
-    const title = document.createElement("h3");
-    title.textContent = "보스 추가";
-    box.appendChild(title);
+    createModal("보스 추가", (box) => {
+        const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
 
-    const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
+        allBosses.forEach(b => {
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.alignItems = "center";
+            wrapper.style.justifyContent = "space-between";
 
-    allBosses.forEach(b => {
-        const wrapper = document.createElement("div");
-        wrapper.style.display = "flex";
-        wrapper.style.alignItems = "center";
-        wrapper.style.justifyContent = "space-between";
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            const bossKey = `${b.name}_${b.difficulty}`;
+            checkbox.checked = bossList.includes(bossKey);
 
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        const bossKey = `${b.name}_${b.difficulty}`;
-        checkbox.checked = bossList.includes(bossKey);
+            checkbox.addEventListener("change", () => {
+                let list = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
+                if (checkbox.checked) {
+                    if (!list.includes(bossKey)) list.push(bossKey);
+                } else {
+                    list = list.filter(k => k !== bossKey);
+                }
+                localStorage.setItem(`${char}_bosses`, JSON.stringify(list));
+                renderCharacters();
+            });
 
-        checkbox.addEventListener("change", () => {
-            let list = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
-            if (checkbox.checked) {
-                if (!list.includes(bossKey)) list.push(bossKey);
-            } else {
-                list = list.filter(k => k !== bossKey);
-            }
-            localStorage.setItem(`${char}_bosses`, JSON.stringify(list));
-            renderCharacters();
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(`${b.name} (${b.difficulty})`));
+            wrapper.appendChild(label);
+            box.appendChild(wrapper);
         });
-
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(`${b.name} (${b.difficulty})`));
-        wrapper.appendChild(label);
-        box.appendChild(wrapper);
     });
-
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "닫기";
-    closeBtn.className = "remove-btn";
-    closeBtn.onclick = () => document.body.removeChild(modal);
-    const buttons = document.createElement("div");
-    buttons.className = "modal-buttons";
-    buttons.appendChild(closeBtn);
-    box.appendChild(buttons);
-    modal.appendChild(box);
-    document.body.appendChild(modal);
 }
 
+// 일일/주간 숙제 모달
 function addTask(char, taskList, type) {
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    const box = document.createElement("div");
-    box.className = "modal-box";
-    const title = document.createElement("h3");
-    title.textContent = type + " 추가";
-    box.appendChild(title);
-
     const storageKey = type === "일일숙제" ? `${char}_dailyTasks` : `${char}_weeklyTasks`;
-    const addedTasks = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
-    taskList.forEach(task => {
-        const wrapper = document.createElement("div");
-        wrapper.style.display = "flex";
-        wrapper.style.alignItems = "center";
-        wrapper.style.justifyContent = "space-between";
+    createModal(type + " 추가", (box) => {
+        const addedTasks = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        const taskKey = task.name;
-        checkbox.checked = addedTasks.includes(taskKey);
+        taskList.forEach(task => {
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.alignItems = "center";
+            wrapper.style.justifyContent = "space-between";
 
-        checkbox.addEventListener("change", () => {
-            let list = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            if (checkbox.checked) {
-                if (!list.includes(taskKey)) list.push(taskKey);
-            } else {
-                list = list.filter(k => k !== taskKey);
-            }
-            localStorage.setItem(storageKey, JSON.stringify(list));
-            renderCharacters();
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            const taskKey = task.name;
+            checkbox.checked = addedTasks.includes(taskKey);
+
+            checkbox.addEventListener("change", () => {
+                let list = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                if (checkbox.checked) {
+                    if (!list.includes(taskKey)) list.push(taskKey);
+                } else {
+                    list = list.filter(k => k !== taskKey);
+                }
+                localStorage.setItem(storageKey, JSON.stringify(list));
+                renderCharacters();
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(task.name));
+            wrapper.appendChild(label);
+            box.appendChild(wrapper);
         });
-
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(task.name));
-        wrapper.appendChild(label);
-        box.appendChild(wrapper);
     });
-
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "닫기";
-    closeBtn.className = "remove-btn";
-    closeBtn.onclick = () => document.body.removeChild(modal);
-    const buttons = document.createElement("div");
-    buttons.className = "modal-buttons";
-    buttons.appendChild(closeBtn);
-    box.appendChild(buttons);
-    modal.appendChild(box);
-    document.body.appendChild(modal);
 }
 
+// 전체 체크/체크 해제
 function checkAll(type) {
     characters.forEach(char => {
         if(type === "all") {
-            // 보스 전체 체크
             const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
             bossList.forEach(bossKey => localStorage.setItem(`${char}_${bossKey}`, "true"));
 
-            // 일일숙제 전체 체크
             const dailyList = JSON.parse(localStorage.getItem(`${char}_dailyTasks`) || '[]');
             dailyList.forEach(task => localStorage.setItem(`${char}_daily_${task}`, "true"));
 
-            // 주간숙제 전체 체크
             const weeklyList = JSON.parse(localStorage.getItem(`${char}_weeklyTasks`) || '[]');
             weeklyList.forEach(task => localStorage.setItem(`${char}_weekly_${task}`, "true"));
         }
@@ -211,15 +214,12 @@ function checkAll(type) {
 function uncheckAll(type) {
     characters.forEach(char => {
         if(type === "all") {
-            // 보스 전체 체크 해제
             const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
             bossList.forEach(bossKey => localStorage.setItem(`${char}_${bossKey}`, "false"));
 
-            // 일일숙제 전체 체크 해제
             const dailyList = JSON.parse(localStorage.getItem(`${char}_dailyTasks`) || '[]');
             dailyList.forEach(task => localStorage.setItem(`${char}_daily_${task}`, "false"));
 
-            // 주간숙제 전체 체크 해제
             const weeklyList = JSON.parse(localStorage.getItem(`${char}_weeklyTasks`) || '[]');
             weeklyList.forEach(task => localStorage.setItem(`${char}_weekly_${task}`, "false"));
         }
@@ -230,7 +230,6 @@ function uncheckAll(type) {
 // 버튼 이벤트 연결
 document.getElementById("checkAllBtn").addEventListener("click", () => checkAll("all"));
 document.getElementById("uncheckAllBtn").addEventListener("click", () => uncheckAll("all"));
-// 일일숙제 체크 해제
 document.getElementById("uncheckDailyBtn").addEventListener("click", () => {
     characters.forEach(char => {
         const dailyList = JSON.parse(localStorage.getItem(`${char}_dailyTasks`) || '[]');
@@ -238,11 +237,8 @@ document.getElementById("uncheckDailyBtn").addEventListener("click", () => {
             localStorage.setItem(`${char}_daily_${taskName}`, "false");
         });
     });
-    renderCharacters(); // 다시 그려서 UI 반영
+    renderCharacters();
 });
-
-
-
 
 function renderCharacters() {
     const container = document.getElementById("characters");
@@ -261,6 +257,7 @@ function renderCharacters() {
         </span>`;
         charDiv.appendChild(title);
 
+        // 보스 리스트
         const bossListDiv = document.createElement("div");
         bossListDiv.className = "boss-list";
         const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
@@ -299,12 +296,13 @@ function renderCharacters() {
 
         charDiv.appendChild(bossListDiv);
 
+        // 숙제 리스트
         const taskWrapper = document.createElement("div");
         taskWrapper.style.display = "flex";
         taskWrapper.style.gap = "40px";
         taskWrapper.style.marginTop = "12px";
 
-        // === 일일숙제 ===
+        // 일일숙제
         const dailyDiv = document.createElement("div");
         dailyDiv.className = "task-list horizontal";
         const dailyTitle = document.createElement("h3");
@@ -333,7 +331,7 @@ function renderCharacters() {
             dailyDiv.appendChild(wrapper);
         });
 
-        // === 주간숙제 ===
+        // 주간숙제
         const weeklyDiv = document.createElement("div");
         weeklyDiv.className = "task-list horizontal";
         const weeklyTitle = document.createElement("h3");
