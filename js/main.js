@@ -62,6 +62,7 @@ const weeklyTasks = [
 
 let characters = JSON.parse(localStorage.getItem("characters")) || [];
 
+// === 캐릭터 관리 ===
 function addCharacter() {
     const name = prompt("추가할 캐릭터 이름:");
     if (name && !characters.includes(name)) {
@@ -84,21 +85,12 @@ function removeCharacter(name) {
     renderCharacters();
 }
 
-// 모달 생성 공통 함수
+// === 모달 생성 ===
 function createModal(titleText, contentBuilder) {
     const modal = document.createElement("div");
     modal.className = "modal";
-
-    // 바깥 클릭 시 닫기
-    modal.addEventListener("click", () => {
-        document.body.removeChild(modal);
-    });
-
     const box = document.createElement("div");
     box.className = "modal-box";
-
-    // 박스 클릭 시 버블링 막기
-    box.addEventListener("click", (e) => e.stopPropagation());
 
     const title = document.createElement("h3");
     title.textContent = titleText;
@@ -118,13 +110,17 @@ function createModal(titleText, contentBuilder) {
 
     modal.appendChild(box);
     document.body.appendChild(modal);
+
+    // 모달 바깥 클릭 시 닫기
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) document.body.removeChild(modal);
+    });
 }
 
-// 보스 추가 모달
+// === 보스 추가 모달 ===
 function addBoss(char) {
     createModal("보스 추가", (box) => {
         const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
-
         allBosses.forEach(b => {
             const wrapper = document.createElement("div");
             wrapper.style.display = "flex";
@@ -156,12 +152,10 @@ function addBoss(char) {
     });
 }
 
-
-// 일일/주간 숙제 모달
+// === 일일/주간 숙제 추가 모달 ===
 function addTask(char, taskList, type) {
-    const storageKey = type === "일일숙제" ? `${char}_dailyTasks` : `${char}_weeklyTasks`;
-
     createModal(type + " 추가", (box) => {
+        const storageKey = type === "일일숙제" ? `${char}_dailyTasks` : `${char}_weeklyTasks`;
         const addedTasks = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
         taskList.forEach(task => {
@@ -195,7 +189,7 @@ function addTask(char, taskList, type) {
     });
 }
 
-// 전체 체크/체크 해제
+// === 전체 체크/해제 ===
 function checkAll(type) {
     characters.forEach(char => {
         if(type === "all") {
@@ -228,9 +222,7 @@ function uncheckAll(type) {
     renderCharacters();
 }
 
-// 버튼 이벤트 연결
-document.getElementById("checkAllBtn").addEventListener("click", () => checkAll("all"));
-document.getElementById("uncheckAllBtn").addEventListener("click", () => uncheckAll("all"));
+// 일일숙제 체크 해제
 document.getElementById("uncheckDailyBtn").addEventListener("click", () => {
     characters.forEach(char => {
         const dailyList = JSON.parse(localStorage.getItem(`${char}_dailyTasks`) || '[]');
@@ -241,6 +233,11 @@ document.getElementById("uncheckDailyBtn").addEventListener("click", () => {
     renderCharacters();
 });
 
+// 전체 체크/해제 버튼
+document.getElementById("checkAllBtn").addEventListener("click", () => checkAll("all"));
+document.getElementById("uncheckAllBtn").addEventListener("click", () => uncheckAll("all"));
+
+// === 렌더링 ===
 function renderCharacters() {
     const container = document.getElementById("characters");
     container.innerHTML = "";
@@ -258,53 +255,52 @@ function renderCharacters() {
         </span>`;
         charDiv.appendChild(title);
 
-        // 보스 리스트
         const bossListDiv = document.createElement("div");
         bossListDiv.className = "boss-list";
-        const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
 
-        bossList
-  .map(bossKey => allBosses.find(b => `${b.name}_${b.difficulty}` === bossKey))
-  .filter(boss => boss) // null 제거
-  .sort((a, b) => a.order - b.order) // order 기준 정렬
-  .forEach(boss => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "boss-wrapper";
+        // 로컬스토리지에서 가져온 보스 리스트를 order 기준으로 정렬
+        const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]')
+            .map(key => allBosses.find(b => `${b.name}_${b.difficulty}` === key))
+            .filter(b => b)
+            .sort((a, b) => a.order - b.order);
 
-      const img = document.createElement("img");
-      img.src = boss.img;
-      img.title = `${boss.name} (${boss.difficulty})`;
+        bossList.forEach(boss => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "boss-wrapper";
 
-      const checkMark = document.createElement("span");
-      checkMark.className = "checkmark";
-      checkMark.textContent = "✔";
+            const img = document.createElement("img");
+            img.src = boss.img;
+            img.title = `${boss.name} (${boss.difficulty})`;
 
-      if (localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true") {
-          img.classList.add("checked");
-          checkMark.style.display = "block";
-      }
+            const checkMark = document.createElement("span");
+            checkMark.className = "checkmark";
+            checkMark.textContent = "✔";
 
-      img.addEventListener("click", () => {
-          const current = localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true";
-          localStorage.setItem(`${char}_${boss.name}_${boss.difficulty}`, !current);
-          img.classList.toggle("checked");
-          checkMark.style.display = current ? "none" : "block";
-      });
+            if (localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true") {
+                img.classList.add("checked");
+                checkMark.style.display = "block";
+            }
 
-      wrapper.appendChild(img);
-      wrapper.appendChild(checkMark);
-      bossListDiv.appendChild(wrapper);
-  });
+            img.addEventListener("click", () => {
+                const current = localStorage.getItem(`${char}_${boss.name}_${boss.difficulty}`) === "true";
+                localStorage.setItem(`${char}_${boss.name}_${boss.difficulty}`, !current);
+                img.classList.toggle("checked");
+                checkMark.style.display = current ? "none" : "block";
+            });
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(checkMark);
+            bossListDiv.appendChild(wrapper);
+        });
 
         charDiv.appendChild(bossListDiv);
 
-        // 숙제 리스트
         const taskWrapper = document.createElement("div");
         taskWrapper.style.display = "flex";
         taskWrapper.style.gap = "40px";
         taskWrapper.style.marginTop = "12px";
 
-        // 일일숙제
+        // === 일일숙제 ===
         const dailyDiv = document.createElement("div");
         dailyDiv.className = "task-list horizontal";
         const dailyTitle = document.createElement("h3");
@@ -333,7 +329,7 @@ function renderCharacters() {
             dailyDiv.appendChild(wrapper);
         });
 
-        // 주간숙제
+        // === 주간숙제 ===
         const weeklyDiv = document.createElement("div");
         weeklyDiv.className = "task-list horizontal";
         const weeklyTitle = document.createElement("h3");
@@ -370,5 +366,6 @@ function renderCharacters() {
     });
 }
 
+// === 초기 렌더 ===
 document.getElementById("addCharBtn").addEventListener("click", addCharacter);
 renderCharacters();
