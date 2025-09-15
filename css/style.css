@@ -1,0 +1,228 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px;
+    background: #f7f8fa;
+    color: #2c3e50;
+}
+
+h1 {
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    filter: brightness(0.95);
+}
+
+.remove-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.remove-btn:hover {
+    background: #c0392b;
+}
+
+.add-btn {
+    background: #3498db;
+    color: white;
+}
+
+.add-btn:hover {
+    background: #2980b9;
+}
+
+.add-char-btn {
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    color: white;
+    margin-bottom: 20px;
+}
+
+#characters {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.character {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+}
+
+.character:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.character h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+/* 보스 영역 */
+.boss-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+}
+
+.boss-list div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.boss-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.boss-img.checked {
+    filter: brightness(0.6);
+    border: 2px solid #3498db;
+    border-radius: 8px;
+}
+
+/* 숙제 영역 전체 */
+.task-wrapper {
+    display: flex;          /* 일일/주간 영역 가로 배치 */
+    gap: 40px;
+    margin-top: 12px;
+}
+
+/* 각 숙제 영역 */
+.task-list {
+    display: flex;          /* 항목 가로 배치 */
+    flex-wrap: wrap;        /* 항목이 많으면 다음 줄 */
+    align-items: center;
+    gap: 12px;
+}
+
+.task-list h3 {
+    width: 100%;
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+/* 각 체크박스 + 텍스트 + 버튼 wrapper */
+.task-list > div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f4f6f8;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.task-list > div:hover {
+    background: #e9ecef;
+}
+
+.task-list input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* 모달 */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 340px;
+    max-height: 80%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.modal-box h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.modal-box select, .modal-box label {
+    margin-bottom: 10px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.modal-buttons button {
+    flex: 1;
+}
+
+.task-list.horizontal > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.boss-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.boss-wrapper img {
+    width: 64px;
+    height: 64px;
+    transition: filter 0.2s;
+    cursor: pointer;
+}
+
+.boss-wrapper img.checked {
+    filter: brightness(50%);
+}
+
+.boss-wrapper .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px; /* 작게 */
+    color: #d8b3ff;
+    pointer-events: none; /* 클릭 이벤트가 이미지로 전달되도록 */
+    display: none;
+}
