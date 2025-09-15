@@ -125,7 +125,10 @@ function addBoss(char) {
     createModal("보스 추가", (box) => {
         const bossList = JSON.parse(localStorage.getItem(`${char}_bosses`) || '[]');
 
-        allBosses.forEach(b => {
+        // order 기준으로 정렬
+        const sortedBosses = [...allBosses].sort((a, b) => a.order - b.order);
+
+        sortedBosses.forEach(b => {
             const wrapper = document.createElement("div");
             wrapper.style.display = "flex";
             wrapper.style.alignItems = "center";
@@ -155,6 +158,7 @@ function addBoss(char) {
         });
     });
 }
+
 
 // 일일/주간 숙제 모달
 function addTask(char, taskList, type) {
