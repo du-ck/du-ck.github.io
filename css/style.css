@@ -222,7 +222,7 @@ button:hover {
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 18px; /* 작게 */
-    color: #d8b3ff;
+    color: #39FF14;
     pointer-events: none; /* 클릭 이벤트가 이미지로 전달되도록 */
     display: none;
 }
